@@ -1,0 +1,2 @@
+#!/bin/bash
+zathura - < <(man -Tpdf $(man -k . | sort | dmenu -l 30 | awk '{print $1.$2}'))

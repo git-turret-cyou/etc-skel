@@ -1,0 +1,4 @@
+#!/bin/bash
+CHARACTER_SET="[:punct:][:alnum:]"
+read -r -n $1 rand < <(LC_ALL=C tr -dc "${CHARACTER_SET}" < /dev/urandom)
+printf "%s" "${rand}"

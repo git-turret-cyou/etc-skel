@@ -1,0 +1,10 @@
+#!/bin/sh
+TIMEZONE=${1:-$(cat /etc/timezone)}
+
+[ ! -f /usr/share/zoneinfo/${TIMEZONE} ] && echo "invalid zone" && exit 1
+
+LOCALE=${2:-en-US}
+CHARACTER_SET="[:alnum:]"
+read -r -n 10 S < <(LC_ALL=C tr -dc "${CHARACTER_SET}" < /dev/urandom)
+echo -n "https://time.turret.cyou/${TIMEZONE}?locale=${LOCALE}&s=${S}" | xclip -in -selection clipboard
+xclip -out -selection clipboard && echo

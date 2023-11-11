@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [ -z ${1+x} ] || [ -z ${2+x} ] || [ -z ${3+x} ] ; then
+echo "Usage: $0 url caption output_file (caption_height)";
+exit 1
+fi;
+
+if [ -z ${4+x} ]; then
+CAPTION_HEIGHT=50;
+else
+CAPTION_HEIGHT=$4;
+fi
+
+echo "gif caption adder by turret"
+#echo "THIS WILL DIRTY THE DIRECTORY!"
+echo "@url: $1
+@caption: $2
+@output: $3
+@caption_height: $CAPTION_HEIGHT"
+echo "enter to confirm/ack"
+read
+
+set -x
+
+curl -L "$1" > input.gif
+ffmpeg -y -i input.gif input.mp4
+blind-from-video input.mp4 input.bl
+
+FPS=$(calc round\($(ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate input.mp4)\))
+FRAMES=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 input.mp4)
+WIDTH=$(ffprobe -v error -select_streams v -show_entries stream=width -of csv=p=0:s=x input.mp4)
+HEIGHT=$(ffprobe -v error -select_streams v -show_entries stream=height -of csv=p=0:s=x input.mp4)
+TOTAL_HEIGHT=$(calc round\($CAPTION_HEIGHT+$HEIGHT\))
+
+convert -size "$WIDTH x $CAPTION_HEIGHT" -fill black -font "Impact" -gravity center caption:"$2" caption.png
+
+cat input.bl | \
+blind-extend -a $CAPTION_HEIGHT > input-fin.bl
+
+cat caption.png | png2ff | \
+blind-from-image | \
+blind-extend -b $HEIGHT | \
+blind-repeat $FRAMES - > caption-fin.bl
+
+blind-stack caption-fin.bl input-fin.bl | \
+blind-to-video $FPS -c:v libx264 -preset veryslow -crf 0 -pix_fmt yuv444p -y output.mp4
+
+ffmpeg -y -i output.mp4 $3
+
+rm output.mp4 caption-fin.bl input.bl input-fin.bl input.gif input.mp4 caption.png
+
+set +x
