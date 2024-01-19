@@ -1,0 +1,10 @@
+[user]
+	email = turret@duck.com
+	name = turret
+	signingkey = D498C1B2BD871C4BE37D7FF03A0A545576502850
+[commit]
+	gpgsign = true
+[pull]
+	rebase = true
+[alias]
+	scrub = reset --hard @{upstream}

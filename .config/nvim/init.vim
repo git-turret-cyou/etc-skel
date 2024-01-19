@@ -1,6 +1,8 @@
 call plug#begin()
 
 Plug 'drewtempelmeyer/palenight.vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neovim/nvim-lspconfig'
 
 call plug#end()
 
@@ -31,6 +33,7 @@ set shiftwidth=4
 set expandtab
 set autoindent
 set fileformat=unix
+filetype on
 
 " Some basics:
 	nnoremap c "_c
@@ -104,3 +107,5 @@ set fileformat=unix
 	map <leader><leader> <Esc>/<++><Enter>"_c4l
 
 set rtp+=/usr/share/vim/vimfiles
+
+lua require'lspconfig'.luau_lsp.setup{filetypes = {"luau", "lua"}, cmd = {"luau-lsp", "lsp", "--definitions=/home/turret/git/taurus/globalTypes.d.lua", "--docs=/home/turret/taurus/en-us.json"}}
